@@ -2,57 +2,59 @@
   <nav class="navbar is-spaced" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
       <a class="navbar-item" href="https://bulma.io">
-        <h1 class="title is-4">VueMeetuper</h1>
+        <router-link class="title is-4" :to="{name: 'PageHome'}">VueMeetuper</router-link>
       </a>
-      <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <a
+        @click="isActive = !isActive"
+        role="button"
+        class="navbar-burger burger"
+        aria-label="menu"
+        aria-expanded="false"
+        data-target="navbarBasicExample"
+      >
         <span aria-hidden="true"></span>
         <span aria-hidden="true"></span>
         <span aria-hidden="true"></span>
       </a>
     </div>
 
-    <div id="navbarBasicExample" class="navbar-menu">
+    <div id="navbarBasicExample" :class="{'is-active': isActive}" class="navbar-menu">
       <div class="navbar-start">
-        <a class="navbar-item">
-          Home
-        </a>
+        <router-link class="navbar-item" :to="{name: 'PageHome'}">Home</router-link>
 
-        <a class="navbar-item">
-          Find
-        </a>
+        <router-link class="navbar-item" :to="{name: 'PageMeetupFinde'}">Find</router-link>
 
         <div class="navbar-item has-dropdown is-hoverable">
-          <a class="navbar-link">
-            More
-          </a>
+          <a class="navbar-link">More</a>
 
           <div class="navbar-dropdown">
-            <a class="navbar-item">
-              About
-            </a>
-            <a class="navbar-item">
-              Jobs
-            </a>
-            <a class="navbar-item">
-              Contact
-            </a>
-            <hr class="navbar-divider">
-            <a class="navbar-item">
-              Report an issue
-            </a>
+            <a class="navbar-item">About</a>
+            <a class="navbar-item">Jobs</a>
+            <a class="navbar-item">Contact</a>
+            <hr class="navbar-divider" />
+            <a class="navbar-item">Report an issue</a>
           </div>
         </div>
       </div>
 
       <div class="navbar-end">
         <div class="navbar-item">
+          <div v-if="user">Welcome {{user.username}}</div>
+        </div>
+        <div v-if="user" class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link">Account</a>
+          <div class="navbar-dropdown">
+            <router-link :to="{name: 'PageProfile'}" href="#" class="navbar-item">Profile</router-link>
+            <hr class="navbar-divider" />
+            <a @click.prevent="logout" class="navbar-item">Logout</a>
+          </div>
+        </div>
+        <div v-else class="navbar-item has-dropdown">
           <div class="buttons">
-            <a class="button is-primary">
+            <router-link :to="{name: 'PageRegister'}" class="button is-primary">
               <strong>Sign up</strong>
-            </a>
-            <a class="button is-light">
-              Log in
-            </a>
+            </router-link>
+            <router-link :to="{name: 'PageLogin'}" class="button is-light">Log in</router-link>
           </div>
         </div>
       </div>
@@ -61,8 +63,29 @@
 </template>
 
 <script>
-  export default {
+import { mapGetters } from "vuex";
+export default {
+  data() {
+    return {
+      isActive: false
+    };
+  },
+  computed: {
+    ...mapGetters({
+      user: "auth/authUser"
+    })
+  },
+  watch: {
+    '$route' (to, from) {
+      this.isActive = false
+    }
+  },
+  methods: {
+    logout() {
+      this.$store.dispatch("auth/logout").then(() => this.$router.push("/"));
+    }
   }
+};
 </script>
 
 <style scoped>
